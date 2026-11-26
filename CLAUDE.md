@@ -11,6 +11,10 @@ TourAPI 관광 데이터로 국내 여행 코스(당일–3박 4일)를 만드�
 - [`docs/TASKS.md`](docs/TASKS.md): 작업 순서, 선행 관계, 완료 기준, 진행 상태
 - [`CONTRIBUTING.md`](CONTRIBUTING.md): 브랜치·커밋·PR 규칙
 
+외부 참고:
+- **FE 저장소**(`JKYMHS/JKYMHS-Frontend`, `develop` 브랜치)의 `docs/PRD.md`·`docs/TRD.md`가 서비스 전체 정책의 원천입니다. 로컬 사본은 `~/project/JKYMHS-Frontend`에 있습니다. **로컬 작업 트리는 원격보다 뒤처져 있고 수정 중인 파일이 있으므로 pull하지 않습니다.** `git fetch` 후 `git show origin/develop:docs/PRD.md`로 읽습니다.
+- Notion 기능 명세서·API 명세서와 ERD 링크는 `docs/PRD.md` 머리말에 있습니다.
+
 작업 순서와 현재 상태:
 
 @docs/TASKS.md

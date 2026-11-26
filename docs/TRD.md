@@ -109,7 +109,18 @@ ALTER USER 'ai_server'@'10.0.%' WITH MAX_USER_CONNECTIONS 20;
 
 인덱스: `(user_id, created_at, status)`, `(status, created_at)`(감시 스케줄러용).
 
-**`behavior_events`**: `(user_id, created_at)` 인덱스가 있어야 요청마다 최근 이벤트를 빨리 조회합니다.
+**`behavior_events`**: `(user_id, created_at)` 인덱스가 있어야 요청마다 최근 이벤트를 빨리 조회합니다. 동의 철회 시 일괄 삭제에도 씁니다.
+
+**`contents`** (후보 검색과 식사·숙소 반경 검색)
+```sql
+ALTER TABLE contents
+  ADD KEY IDX_contents_candidate (region_id, content_type, is_deleted, event_end_date),
+  ADD COLUMN location POINT SRID 4326 NULL;      -- 위도·경도 열과 동기화. MySQL 8에서 SRID 4326은 (위도, 경도) 순서
+-- location을 채운 뒤:
+-- ALTER TABLE contents MODIFY location POINT SRID 4326 NOT NULL;
+-- ALTER TABLE contents ADD SPATIAL INDEX SPX_contents_location (location);
+```
+003-04(식사 1km, 숙소 3km)의 반경 검색은 `ST_Distance_Sphere`와 공간 인덱스로 합니다. 열 이름은 실제 ERD에 맞춥니다.
 
 **`content_details`**: 운영시간 원문은 그대로 둡니다. 구조화 결과는 `ai` 스키마에 저장합니다.
 
@@ -120,7 +131,8 @@ ALTER USER 'ai_server'@'10.0.%' WITH MAX_USER_CONNECTIONS 20;
 CREATE TABLE place_profiles (
   content_id      VARCHAR(20) PRIMARY KEY,
   description     TEXT        NOT NULL,          -- 임베딩 전용 설명문
-  tags_json       JSON        NOT NULL,          -- {"mood":[...], "activity":[...], "companion":[...], "indoor":true, "pet":false}
+  tags_json       JSON        NOT NULL,          -- {"mood":[...], "activity":[...], "companion":[...], "indoor":true,
+                                                 --  "pet":false, "stroller":true, "wheelchair":null}  (null = 정보 없음)
   min_stay_min    SMALLINT    NOT NULL,
   typical_stay_min SMALLINT   NOT NULL,
   source_updated_at DATETIME(3) NOT NULL,        -- spring.contents.updated_at 기준
@@ -369,7 +381,8 @@ FROM contents WHERE id IN (:ids);          -- 30곳 이하
   "startDate": "2026-12-20", "endDate": "2026-12-22", "startTime": "10:00",
   "companion": {"type": "CHILD", "childAge": 6},
   "pace": "RELAXED", "travelStyles": ["NATURE", "ACTIVITY"],
-  "indoorPreferred": false, "withPet": false,
+  "indoorPreferred": false, "withPet": false, "needStroller": false, "needWheelchair": false,
+  "mobilityEase": false,
   "mustVisitIds": ["126508", "264337"], "allowOverPace": false
 }
 ```
@@ -600,7 +613,9 @@ LLM 재요청은 하지 않습니다. 최소판에서 기본 코스 비율을 �
 ```
 ⓪ 지역 확장   꼭 포함 장소가 선택하지 않은 시·군·구(같은 시·도)에 있으면 그 시·군·구를 후보 지역에 추가
 ① 필수 필터   지역·시·군·구, 삭제 제외, 여행 기간 중 하루 이상 운영(미상 포함), 축제 기간,
-               반려동물 동반 요청 시 tags.pet=true, 아이 동반 시 부적합 태그 제외
+               반려동물 동반 요청 시 tags.pet=true, 아이 동반 시 부적합 태그 제외,
+               유모차·휠체어 필요 시 tags.stroller·tags.wheelchair가 false인 장소 제외
+               (null = 정보 없음은 포함하고 감점, 라벨 ACCESS_UNKNOWN)
 ② 유사도      s_cond  = cos(조건 문장 임베딩, 장소 임베딩)
                s_behav = max_k cos(관심사 벡터_k, 장소 임베딩)    (행동 신호가 있을 때)
                s_kw    = 키워드 점수 (BM25, 설명문·태그 대상)
@@ -732,6 +747,15 @@ id|cat|cluster|lat|lng|stay_min|hours(해당 날짜)|tags
 5. 실제 시간으로 시간표를 다시 계산하고 운영시간을 재검증합니다. 위반이 생기면 체류 시간을 줄이고, 안 되면 `HOURS_CONFLICT`를 붙입니다.
 6. ODsay가 실패한 구간은 추정 시간을 유지하고 `ROUTE_ESTIMATED`를 붙입니다.
 7. `route_cache`는 ODsay 결과 저장 동의를 받은 뒤에만 씁니다.
+
+**경로 엔진(OSRM 등)을 직접 운영하지 않는 이유**
+- 대중교통이 기준인데, 오픈소스 경로 엔진이 해 주는 건 도보와 자동차뿐입니다. 대중교통에는 어차피 ODsay가 필요합니다.
+- 그래서 처음에는 엔진 없이 직선거리 추정식으로 시작합니다. 도보 시간의 정확도가 문제로 드러나면 도보 엔진만 붙입니다. 엔진의 성능은 문제가 아닙니다(40×41 행렬 1회에 수십 ms 이하, 운영 메모리는 수단당 1–3GB로 추정).
+
+**ODsay 비용 (추정, 문의로 확인 필요)**
+- 요청 1회에 확정 구간 6–8건을 조회합니다.
+- 무료 요금제(하루 30건, 비상업)로는 하루 추천 3–4회만 가능합니다.
+- Flex 요금제가 건당 25원이면 요청당 약 150–200원입니다.
 
 ### 7.8 식사 (`attach_meals`, FUNC-003-10)
 - LLM이 지정한 식사 위치에 60분 슬롯을 넣습니다. 기본 코스는 점심 12:00, 저녁 18:00에 가장 가까운 장소 사이에 넣습니다.
@@ -898,7 +922,7 @@ TourAPI의 개요, 소개 정보(체험 안내, 유모차 대여, 주차), 반�
 | 1 | 일정 생성 방식 (LLM 중심 / 최적화 엔진) | 7.4, 7.6 |
 | 2 | 개인화 방식 (임베딩 / 카테고리 점수) | 7.3, 8.1 ③ |
 | 3 | Gemini 2.5 Flash 호출 가능 여부, 임베딩 모델 ID | 10 |
-| 4 | 백엔드 건의 사항: `ai` 스키마·권한, `recommendation_requests` 열 추가(`original_result_json`, `version`, `request_hash` 포함), `behavior_events` 인덱스, 요청 본문에 행동 이벤트 포함, 요청 접수 순서(3.1), 일차 수정·다시 추천·일정안 변환 처리, 결과 조회 시 장소 정보 결합, ShedLock, 카테고리 매핑표 반영 | 2.1, 2.2, 3.1–3.9, 8.1 |
+| 4 | 백엔드 건의 사항: `ai` 스키마·권한, `recommendation_requests` 열 추가(`original_result_json`, `version`, `request_hash` 포함), `behavior_events` 인덱스, 요청 본문에 행동 이벤트 포함, 요청 접수 순서(3.1), 일차 수정·다시 추천·일정안 변환 처리, 결과 조회 시 장소 정보 결합, ShedLock, 카테고리 매핑표 반영, `contents` 후보·공간 인덱스, 요청 본문에 유모차·휠체어·이동 편의 값 | 2.1, 2.2, 3.1–3.9, 4.2, 8.1 |
 | 5 | FE 반영: 출발지 재전송, `DEPARTURE_IGNORED` 안내, 다른 시·도 장소 비활성화, 일차 수정 API와 충돌 안내, 이전 결과 버튼 숨김, polling 60초 종료 | 3.1, 3.5–3.8, 5 |
 | 6 | ODsay 결과 저장 동의·요금제 | 7.7 `route_cache` |
 | 7 | 관광공사 연관 관광지 데이터 제공 여부 | 7.3 점수 항목 추가 |
