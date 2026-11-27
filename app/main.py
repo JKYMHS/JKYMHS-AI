@@ -3,6 +3,7 @@
 from fastapi import FastAPI
 
 from app.api.auth import warn_if_api_key_missing
+from app.api.courses import router as courses_router
 from app.api.errors import register_error_handlers
 from app.api.health import install_health
 from app.config import Settings, get_settings
@@ -20,6 +21,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     register_error_handlers(app)
     app.add_middleware(RequestLoggingMiddleware)
     install_health(app)
+    app.include_router(courses_router)
     return app
 
 

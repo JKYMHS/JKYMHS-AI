@@ -1,0 +1,12 @@
+{
+  "_comment": "임시 코스 구성(T1-4, LLM 없음)의 기본 문장. 코드에 하드코딩하지 않는다 (TRD 11). LLM 구현(T3-7)으로 바뀌면 지운다.",
+  "courses": [
+    {"title": "인기 명소 코스", "summary": "점수 높은 장소를 가까운 순으로 잇는 코스"},
+    {"title": "여유로운 동선 코스", "summary": "가까운 장소끼리 묶어 이동을 줄인 코스"},
+    {"title": "숨은 명소 코스", "summary": "점수 순 다음 후보들을 가까운 순으로 담은 코스"}
+  ],
+  "extraCourse": {"title": "추천 코스 {n}", "summary": "가까운 장소를 차례로 둘러보는 코스"},
+  "reason": "{category} · 인기 장소",
+  "reasonNoCategory": "추천 장소 · 인기 장소",
+  "stayMinutes": 90
+}
