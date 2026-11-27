@@ -5,8 +5,12 @@ description = "어디갈래 AI 서버: TourAPI 후보로 여행 코스를 구성
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "alembic>=1.20.1",
+    "asyncmy>=0.2.18",
+    "cryptography>=50.0.2",
     "fastapi>=0.115",
     "pydantic-settings>=2.6",
+    "sqlalchemy[asyncio]>=2.0",
     "uvicorn[standard]>=0.32",
 ]
 
