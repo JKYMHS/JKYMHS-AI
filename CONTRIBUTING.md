@@ -6,16 +6,16 @@
 |---|---|---|
 | `main` | 배포 기준. 직접 커밋하지 않습니다 | |
 | `develop` | 개발 기준. **모든 PR은 `develop`으로 보냅니다** | |
-| `feat/{작업ID}-{요약}` | 기능 개발 | `feat/T2-4-hours-parsing` |
-| `fix/{요약}` | 버그 수정 | `fix/precheck-holiday-off-by-one` |
+| `feat/{작업ID}-{요약}` | 기능 개발 | `feat/T2-2-place-profiles` |
+| `fix/{요약}` | 버그 수정 | `fix/repair-rest-day-move` |
 | `perf/{요약}` | 응답 시간·비용 개선 | `perf/compose-input-compression` |
 | `prompt/{요약}` | 프롬프트 변경 | `prompt/compose-reason-rules` |
 | `docs/{요약}` | 문서 | `docs/trd-idempotency` |
-| `test/{요약}` | 테스트·평가셋만 추가·수정 | `test/validate-last-entry` |
+| `test/{요약}` | 테스트·평가셋만 추가·수정 | `test/validator-rule-10` |
 | `refactor/{요약}` | 동작이 바뀌지 않는 구조 개선 | `refactor/gemini-client` |
 | `chore/{요약}` | 설정·의존성·빌드·CI | `chore/setup-fastapi` |
 
-- `{작업ID}`는 [`docs/TASKS.md`](docs/TASKS.md)의 ID(`T2-4` 등)입니다. `feat` 외의 브랜치도 해당하는 작업이 있으면 요약 앞에 붙입니다(예: `perf/T4-5-compose-input`).
+- `{작업ID}`는 [`docs/TASKS.md`](docs/TASKS.md)의 ID(`T2-2` 등)입니다. `feat` 외의 브랜치도 해당하는 작업이 있으면 요약 앞에 붙입니다(예: `perf/T3-3-compose-input`).
 - 요약은 영어 소문자와 `-`로 짧게 씁니다.
 - `develop`에는 PR로만 합치고 **Squash merge**합니다. PR 제목이 최종 커밋 메시지가 됩니다.
 - PR 하나에는 목적 하나만 담습니다.
@@ -50,9 +50,9 @@
 
 | 영역 | 범위 |
 |---|---|
-| API | `api`, `precheck`, `recommend`, `recalculate` |
-| 파이프라인 | `retrieve`, `compose`, `timetable`, `validate`, `fallback`, `routes`, `meals` |
-| 데이터 | `batch`, `hours`, `profile`, `embed`, `db` |
+| API | `api`, `contract` |
+| 코스 구성 | `enrich`, `compose`, `repair`, `diversify`, `reason` |
+| 데이터 | `batch`, `profile`, `embed`, `db` |
 | 기타 | `llm`, `eval`, `config`, `infra` |
 
 - 요약은 50자 이내로 쓰고 마침표를 붙이지 않습니다. "~한다"가 아니라 명사형으로 씁니다.
@@ -62,12 +62,12 @@
 예
 
 ```
-feat(hours): 운영시간 정규식 구조화와 공휴일 규칙 추출
-fix(validate): 입장 마감 시각 비교 누락 수정
+feat(profile): 장소 설명문·태그 생성 배치
+fix(repair): 쉬는 요일 장소를 다른 날로 옮기지 못하는 문제 수정
 perf(compose): 후보 입력 압축으로 입력 토큰 40% 감소
 prompt(compose): 추천 이유 금지 표현 규칙 추가 (v3)
 test(eval): 코스 평가셋 생성기 추가
-docs: TRD 멱등키 처리 갱신
+docs: TRD 계약 건의 갱신
 ```
 
 ## PR
