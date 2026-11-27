@@ -1,0 +1,23 @@
+{
+  "courses": [
+    {
+      "title": "가족 코스",
+      "summary": "궁과 박물관",
+      "days": [
+        {
+          "dayNumber": 1,
+          "items": [
+            {"contentId": 1001, "stayMinutes": 80, "reason": "아이와 걷기 좋음"},
+            {"contentId": 2830, "stayMinutes": null, "reason": "저녁에 불빛 구경"}
+          ]
+        },
+        {
+          "dayNumber": 2,
+          "items": [
+            {"contentId": 126508, "stayMinutes": 90, "reason": "아이와 체험하기 좋은 실내 전시"}
+          ]
+        }
+      ]
+    }
+  ]
+}
