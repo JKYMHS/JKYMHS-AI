@@ -41,7 +41,7 @@
 
 | ID | 상태 | 작업 | 담당 | 선행 | 참조 | 완료 기준 | 비고 |
 |---|---|---|---|---|---|---|---|
-| T1-1 | [ ] | 저장소 골격: FastAPI, 설정 로딩(TRD 11), 구조화 로그(`requestId`), Dockerfile, CI(린트·테스트) | AI | – | TRD 1.3, 10, 11 | 로컬 실행, CI 통과 | |
+| T1-1 | [x] | 저장소 골격: FastAPI, 설정 로딩(TRD 11), 구조화 로그(`requestId`), Dockerfile, CI(린트·테스트) | AI | – | TRD 1.3, 10, 11 | 로컬 실행, CI 통과 | 2026-11-28 ruff·mypy(strict)·pytest 10건 통과, Docker 빌드·실행 후 `/docs` 200 |
 | T1-2 | [ ] | 계약 모델: `AiCourseRequest`·`AiCourseResponse`를 Pydantic으로 옮기고 계약 테스트 | AI | T0-3 | TRD 3.2–3.3, 9 | Spring 예시 JSON 왕복 통과 | |
 | T1-3 | [ ] | Bearer 인증, 오류 형식, `GET /health` | AI | T1-1 | TRD 3.1, 4, 6 | 키 없으면 401 | |
 | T1-4 | [ ] | **임시 `POST /v1/courses`**: LLM 없이 가까운 순으로 코스 3개를 돌려주는 구현 | AI | T1-2, T1-3 | TRD 3 | Spring `ai.provider=http`로 붙여 FE까지 동작 | Spring 연동을 먼저 검증 |
