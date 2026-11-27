@@ -1,0 +1,73 @@
+{
+  "requestId": 7,
+  "conditions": {
+    "startDate": "2026-12-20",
+    "endDate": "2026-12-22",
+    "startTime": "13:00",
+    "companion": "kids",
+    "childAgeGroup": "ELEMENTARY",
+    "pace": "relaxed",
+    "indoor": false,
+    "timeOfDay": "early",
+    "origin": {"lat": 37.55, "lng": 126.97}
+  },
+  "profile": {"topCategories": []},
+  "candidates": [
+    {
+      "contentId": 1001,
+      "name": "경복궁",
+      "lat": 37.57,
+      "lng": 126.97,
+      "category": "궁",
+      "io": "OUTDOOR",
+      "openTime": "09:00",
+      "closeTime": "18:00",
+      "lastEntryTime": "17:00",
+      "restDays": ["TUE"],
+      "eventStartDate": null,
+      "eventEndDate": null,
+      "required": true
+    },
+    {
+      "contentId": 2830,
+      "name": "서울빛초롱축제",
+      "lat": 37.5688,
+      "lng": 126.9782,
+      "category": "문화관광축제",
+      "io": "MIXED",
+      "openTime": "17:00",
+      "closeTime": "23:00",
+      "lastEntryTime": null,
+      "restDays": [],
+      "eventStartDate": "2026-12-12",
+      "eventEndDate": "2026-12-21",
+      "required": false
+    },
+    {
+      "contentId": 126508,
+      "name": "국립민속박물관",
+      "lat": 37.5817,
+      "lng": 126.9791,
+      "category": "박물관",
+      "io": "INDOOR",
+      "openTime": "09:00",
+      "closeTime": "18:00",
+      "lastEntryTime": "17:00",
+      "restDays": ["MON", "SUN"],
+      "eventStartDate": null,
+      "eventEndDate": null,
+      "required": false
+    }
+  ],
+  "rules": {
+    "courses": 3,
+    "placesPerDay": {"min": 1, "max": 2},
+    "lunch": "11:30-13:30",
+    "dinner": "17:30-19:30",
+    "noPlaceAfter": "20:00"
+  },
+  "violations": [
+    "코스 1: 후보에 없는 장소입니다: 9",
+    "코스 1: 축제 2830는 2026-12-22에 열리지 않습니다."
+  ]
+}

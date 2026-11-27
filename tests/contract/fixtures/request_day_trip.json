@@ -1,0 +1,75 @@
+{
+  "requestId": 123,
+  "conditions": {
+    "startDate": "2026-12-20",
+    "endDate": "2026-12-20",
+    "startTime": "10:00",
+    "companion": "couple",
+    "childAgeGroup": null,
+    "pace": "packed",
+    "indoor": true,
+    "timeOfDay": "morning",
+    "origin": {"lat": 37.5701, "lng": 126.9832}
+  },
+  "profile": {
+    "topCategories": [
+      {"lcls2": "VE01", "score": 0.82},
+      {"lcls2": "HS01", "score": 0.4}
+    ]
+  },
+  "candidates": [
+    {
+      "contentId": 126508,
+      "name": "국립민속박물관",
+      "lat": 37.5817,
+      "lng": 126.9791,
+      "category": "박물관",
+      "io": "INDOOR",
+      "openTime": "09:00",
+      "closeTime": "18:00",
+      "lastEntryTime": "17:00",
+      "restDays": ["MON"],
+      "eventStartDate": null,
+      "eventEndDate": null,
+      "required": false
+    },
+    {
+      "contentId": 264337,
+      "name": "탑골공원",
+      "lat": 37.5711,
+      "lng": 126.9882,
+      "category": "공원",
+      "io": "OUTDOOR",
+      "openTime": null,
+      "closeTime": null,
+      "lastEntryTime": null,
+      "restDays": [],
+      "eventStartDate": null,
+      "eventEndDate": null,
+      "required": false
+    },
+    {
+      "contentId": 2733967,
+      "name": "익선동 한옥거리",
+      "lat": 37.5743,
+      "lng": 126.9897,
+      "category": null,
+      "io": null,
+      "openTime": null,
+      "closeTime": null,
+      "lastEntryTime": null,
+      "restDays": null,
+      "eventStartDate": null,
+      "eventEndDate": null,
+      "required": false
+    }
+  ],
+  "rules": {
+    "courses": 3,
+    "placesPerDay": {"min": 4, "max": 5},
+    "lunch": "11:30-13:30",
+    "dinner": "17:30-19:30",
+    "noPlaceAfter": null
+  },
+  "violations": []
+}
