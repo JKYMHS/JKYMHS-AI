@@ -19,6 +19,8 @@ RUN uv sync --frozen --no-dev --no-install-project
 COPY app ./app
 COPY prompts ./prompts
 COPY config ./config
+COPY alembic.ini ./
+COPY alembic ./alembic
 
 RUN useradd --system --uid 10001 --no-create-home appuser
 USER appuser
