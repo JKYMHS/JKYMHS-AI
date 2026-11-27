@@ -4,10 +4,12 @@
 비밀값은 `SecretStr`로 두어 로그·repr에 드러나지 않게 한다.
 """
 
+import ipaddress
 from functools import lru_cache
+from typing import Annotated
 
-from pydantic import Field, SecretStr
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field, SecretStr, field_validator
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -40,6 +42,9 @@ class Settings(BaseSettings):
     uvicorn_workers: int = Field(default=2, gt=0)
     gemini_monthly_budget_usd: float | None = Field(default=None, ge=0)  # 팀 결정
     log_level: str = "INFO"
+    # `GET /health`에 응답할 클라이언트 주소 (TRD 4, 8). 쉼표로 구분하며 CIDR도 받는다.
+    # Docker 브리지처럼 접근 경로가 다르면 그 주소를 더한다(예: `127.0.0.1,::1,172.17.0.1`).
+    health_allowed_hosts: Annotated[list[str], NoDecode] = ["127.0.0.1", "::1"]
 
     # DB (DB.md): AI 전용 계정. `ai` 스키마에 쓰고, 배치만 `jkymhs`를 읽는다.
     ai_db_host: str = "localhost"
@@ -48,6 +53,20 @@ class Settings(BaseSettings):
     ai_db_password: SecretStr = SecretStr("")
     ai_db_name: str = "ai"
     jkymhs_db_name: str = "jkymhs"
+
+    @field_validator("health_allowed_hosts", mode="before")
+    @classmethod
+    def _split_hosts(cls, value: object) -> object:
+        if isinstance(value, str):
+            return [part.strip() for part in value.split(",") if part.strip()]
+        return value
+
+    @field_validator("health_allowed_hosts")
+    @classmethod
+    def _check_hosts(cls, value: list[str]) -> list[str]:
+        for host in value:
+            ipaddress.ip_network(host, strict=False)  # 잘못된 주소면 ValueError
+        return value
 
 
 @lru_cache
