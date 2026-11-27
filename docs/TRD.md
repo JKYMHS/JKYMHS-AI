@@ -162,6 +162,12 @@ AI 서버의 자체 점검(5.4)은 이 규칙을 그대로 따릅니다.
 | 4 | 시각 계산 방식 공유: `RouteService.estimate`의 식, 첫날 출발·둘째 날 시작 시각, 식사 칸이 시간표에 들어가는 방식 | AI 자체 점검이 Spring과 같은 시각을 계산해야 규칙 10을 미리 지킬 수 있음 |
 | 5 | (결정 3) `profile.recentContentIds` | 임베딩 기반 개인화 |
 | 6 | (나중에) `POST /v1/candidates/rank` | 인기 점수가 0인 동안 후보 풀 재정렬 |
+| 7 | 후보 수가 `placesPerDay.min × 일수`보다 적으면 `min`을 낮춰 보내기 | Spring은 후보가 "일수 × 2곳"만 넘으면 AI를 부름. 예: 당일·알찬 페이스(하루 4–5곳)에 후보 3곳이면 AI 코스도 기본 코스도 규칙 3을 지킬 수 없음 (T1-4에서 발견) |
+
+**계약 해석 확인 사항** (T1-2에서 정함, T0-3에서 Spring 담당과 확인)
+- `restDays`는 `MON`–`SUN` 일곱 값만 받습니다(Spring `RecommendationWorker`가 요일 이름 앞 3글자를 보냄).
+- 응답의 `title`, `summary`, `reason`은 AI가 항상 채웁니다(Spring은 null을 허용).
+- 요청의 nullable 필드는 키가 빠져도 null로 읽습니다(Jackson과 같음).
 
 ---
 
@@ -272,12 +278,13 @@ Spring 쪽에서는 첫 호출과 재요청을 합쳐 25초 안에 들어와야 
 
 | 상황 | AI 서버 응답 | Spring 처리 |
 |---|---|---|
-| 인증 키 없음·불일치 | 401 | 기본 추천 코스 |
+| 인증 키 없음·불일치 | 401 `{"code": "UNAUTHORIZED"}`. 서버에 `AI_API_KEY`가 없으면 모든 요청 401 | 기본 추천 코스 |
 | 요청 형식 오류 | 422 `{"code": "INVALID_REQUEST"}` | 기본 추천 코스 |
 | 후보가 없음 | 422 `{"code": "NO_CANDIDATES"}` | 기본 추천 코스 (Spring이 먼저 걸러서 정상 흐름에서는 없음) |
 | Gemini 시간 초과·오류·한도 초과로 코스를 다 못 만듦 | 503 `{"code": "LLM_UNAVAILABLE"}` | 기본 추천 코스 |
 | 18초 초과 | 503 `{"code": "DEADLINE"}` | 기본 추천 코스 |
-| 그 밖의 오류 | 500 | 기본 추천 코스 |
+| 그 밖의 오류 | 500 `{"code": "INTERNAL"}` | 기본 추천 코스 |
+| 없는 경로·허용하지 않는 메서드 | 404·405, 같은 `{code, message}` 형식 | – |
 
 오류 본문에 내부 정보를 넣지 않습니다. 모든 요청의 `requestId`를 로그로 남깁니다.
 
@@ -369,6 +376,11 @@ Spring 쪽에서는 첫 호출과 재요청을 합쳐 25초 안에 들어와야 
 | 키 | 기본값 |
 |---|---|
 | `AI_API_KEY` | (비밀값) |
+| `GEMINI_API_KEY` | (비밀값) |
+| `LOG_LEVEL` | `INFO` |
+| `AI_DB_HOST` / `AI_DB_PORT` / `AI_DB_USER` / `AI_DB_PASSWORD` | `localhost` / 3306 / – / (비밀값) |
+| `AI_DB_NAME` / `JKYMHS_DB_NAME` | `ai` / `jkymhs` |
+| `HEALTH_ALLOWED_HOSTS` | `127.0.0.1,::1` (쉼표 구분, CIDR 허용) |
 | `GEMINI_COMPOSE_MODEL` / `GEMINI_BATCH_MODEL` | `gemini-2.5-flash` |
 | `GEMINI_EMBED_MODEL` | (확인 필요) |
 | `COMPOSE_DEADLINE_SEC` | 18 |

@@ -42,10 +42,10 @@
 | ID | 상태 | 작업 | 담당 | 선행 | 참조 | 완료 기준 | 비고 |
 |---|---|---|---|---|---|---|---|
 | T1-1 | [x] | 저장소 골격: FastAPI, 설정 로딩(TRD 11), 구조화 로그(`requestId`), Dockerfile, CI(린트·테스트) | AI | – | TRD 1.3, 10, 11 | 로컬 실행, CI 통과 | 2026-11-28 ruff·mypy(strict)·pytest 10건 통과, Docker 빌드·실행 후 `/docs` 200 |
-| T1-2 | [ ] | 계약 모델: `AiCourseRequest`·`AiCourseResponse`를 Pydantic으로 옮기고 계약 테스트 | AI | T0-3 | TRD 3.2–3.3, 9 | Spring 예시 JSON 왕복 통과 | |
-| T1-3 | [ ] | Bearer 인증, 오류 형식, `GET /health` | AI | T1-1 | TRD 3.1, 4, 6 | 키 없으면 401 | |
-| T1-4 | [ ] | **임시 `POST /v1/courses`**: LLM 없이 가까운 순으로 코스 3개를 돌려주는 구현 | AI | T1-2, T1-3 | TRD 3 | Spring `ai.provider=http`로 붙여 FE까지 동작 | Spring 연동을 먼저 검증 |
-| T1-5 | [ ] | `ai` 스키마 Alembic 마이그레이션 (`place_embeddings` 제외) | AI | T0-5 | DB.md 3 | 적용·롤백 확인 | |
+| T1-2 | [~] | 계약 모델: `AiCourseRequest`·`AiCourseResponse`를 Pydantic으로 옮기고 계약 테스트 | AI | T0-3 | TRD 3.2–3.3, 9 | Spring 예시 JSON 왕복 통과 | PR #4 리뷰 대기 (#2 위에 쌓임). pytest 56건, Spring 필드 대조표 포함 |
+| T1-3 | [~] | Bearer 인증, 오류 형식, `GET /health` | AI | T1-1 | TRD 3.1, 4, 6 | 키 없으면 401 | PR #3 리뷰 대기 (#2 위). pytest 44건, /health·401 curl 확인 |
+| T1-4 | [~] | **임시 `POST /v1/courses`**: LLM 없이 가까운 순으로 코스 3개를 돌려주는 구현 | AI | T1-2, T1-3 | TRD 3 | Spring `ai.provider=http`로 붙여 FE까지 동작 | PR #6 리뷰 대기 (#4 위, #3 커밋 포함 → #3 먼저 머지). pytest 105건, 응답 2–5ms. Spring 연동을 먼저 검증 |
+| T1-5 | [~] | `ai` 스키마 Alembic 마이그레이션 (`place_embeddings` 제외) | AI | T0-5 | DB.md 3 | 적용·롤백 확인 | PR #5 리뷰 대기 (#2 위). 임시 MySQL 8.4에서 upgrade·downgrade·autogenerate 차이 없음 확인. `cryptography` 의존성 추가 |
 | T1-6 | [ ] | Gemini 클라이언트: 비동기 호출, 타임아웃, 구조화 출력, `ai_call_logs` 기록, `prompts/` 로딩 | AI | T0-1, T1-5 | TRD 5.3, 5.8 | 테스트 호출이 기록됨 | |
 
 ---
@@ -66,7 +66,7 @@
 | ID | 상태 | 작업 | 담당 | 선행 | 참조 | 완료 기준 | 비고 |
 |---|---|---|---|---|---|---|---|
 | T3-1 | [ ] | 평가셋: 운영 DB 콘텐츠로 Spring 형식의 요청 수백 건 생성 | AI | T1-2 | TRD 9 | 지역·기간·동행·페이스·꼭 포함 조합 | |
-| T3-2 | [ ] | 채점기: Spring `CourseValidator` 규칙 1–10을 옮긴 검사기 | AI | T1-2 | TRD 3.4 | Spring 테스트 예시와 같은 판정 | 규칙 10은 T0-3 건의 4 결과에 따름 |
+| T3-2 | [~] | 채점기: Spring `CourseValidator` 규칙 1–10을 옮긴 검사기 | AI | T1-2 | TRD 3.4 | Spring 테스트 예시와 같은 판정 | PR #7 리뷰 대기 (#4 위). Spring 테스트 9/9 이식, Spring 원본과 무작위 4만 건 비교 불일치 0. 규칙 10은 T0-3 건의 4 결과에 따름 |
 | T3-3 | [ ] | 프롬프트와 후보 입력 형식(거리 순위·묶음), 코스 1개 생성 | AI | T1-6, T2-2 | TRD 5.3 | 평가셋에서 코스 생성 | |
 | T3-4 | [ ] | 자체 점검·보정 | AI | T3-2, T3-3 | TRD 5.4 | 보정 후 위반 감소 측정 | |
 | T3-5 | [ ] | 코스 3개 동시 생성, 실패 코스 재생성, 겹침 줄이기, 추천 이유 검사 | AI | T3-4 | TRD 5.1, 5.5, 5.6 | 코스 사이 겹침 50% 이하 | |
